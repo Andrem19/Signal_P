@@ -23,6 +23,9 @@ class Settings:
         self.rsi_min_border_5 = 20
         self.rsi_min_border_15 = 20
         self.rsi_max_border = 85
+        self.st_sl_kof_long_1 = 0.08
+        self.st_sl_kof_long_5 = 0.16
+        self.st_sl_kof_long_15 = 0.18
 
 
     def to_json(self):
@@ -48,5 +51,5 @@ class Settings:
             setattr(obj, key, value)
         return obj
     
-set = Settings()
-set.to_json()
+# set = Settings()
+# set.to_json()

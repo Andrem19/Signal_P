@@ -27,11 +27,16 @@ def get_fake_signal(coin):
 async def handle_coin(coin: str, settings: Settings, minute: int):
     try:
         settings.coin = coin
-        signal, dataframe_hist, timeframe = cs.get_signal(settings, minute)
+        signal, dataframe_hist, timeframe, incline_res = cs.get_signal(settings, minute)
         # signal = get_fake_signal(settings.coin)
         signals_dict = {}
         signals_dict[coin] = signal
         signals_dict['coin'] = coin
+        sl = incline_res
+        if signal != 3:
+            kof = settings.st_sl_kof_long_1 if timeframe == 1 else settings.st_sl_kof_long_5 if timeframe == 5 else sv.settings.filter_border_15
+            sl = incline_res * kof
+        signals_dict['sl'] = sl
         signals_dict['t'] = timeframe
         signals_dict[f'dataframe_{coin}'] = dataframe_hist
         signals_dict['timestamp'] = datetime.datetime.now().timestamp()

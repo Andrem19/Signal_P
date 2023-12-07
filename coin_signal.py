@@ -38,7 +38,7 @@ def get_signal(settings: Settings, minute: int):
                     if add_m != '':
                         sv.aditional_message+= f'\n{settings.coin} '
                         sv.aditional_message += add_m
-                    return signal_5, step, 5
+                    return signal_5, step, 5, abs(incline_res_5)
         else:
             add_m + '5 lenerr; '
     if sv.go_1:
@@ -61,7 +61,7 @@ def get_signal(settings: Settings, minute: int):
                     if add_m != '':
                         sv.aditional_message+= f'\n{settings.coin} '
                         sv.aditional_message += add_m
-                    return signal_1, step, 1
+                    return signal_1, step, 1, abs(incline_res_1)
         else:
             add_m + '1 lenerr; '
     if sv.go_15:
@@ -84,10 +84,10 @@ def get_signal(settings: Settings, minute: int):
                     if add_m != '':
                         sv.aditional_message+= f'\n{settings.coin} '
                         sv.aditional_message += add_m
-                    return signal_15, step, 15
+                    return signal_15, step, 15,abs(incline_res_15)
         else:
             add_m + '15 lenerr; '
     if add_m != '':
         sv.aditional_message+= f'\n{settings.coin} '
         sv.aditional_message += add_m
-    return 3, step, 0
+    return 3, step, 0, 0
