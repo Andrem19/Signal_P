@@ -1,0 +1,36 @@
+Inform message sent successfully!
+Inform message sent successfully!
+Inform message sent successfully!
+Inform message sent successfully!
+Inform message sent successfully!
+Inform message sent successfully!
+Inform message sent successfully!
+Inform message sent successfully!
+Inform message sent successfully!
+Inform message sent successfully!
+Inform message sent successfully!
+Traceback (most recent call last):
+  File "C:\Users\andre\AppData\Local\Programs\Python\Python311\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\andre\AppData\Local\Programs\Python\Python311\Lib\asyncio\base_events.py", line 653, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "D:\PYTHON\Signal_P\main_1.py", line 93, in main
+    
+  File "D:\PYTHON\Signal_P\main_1.py", line 27, in handle_coin
+    async def handle_coin(coin: str, settings: Settings, minute: int):
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\PYTHON\Signal_P\main_1.py", line 112, in <module>
+    if __name__ == "__main__":
+        ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\andre\AppData\Local\Programs\Python\Python311\Lib\asyncio\runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\andre\AppData\Local\Programs\Python\Python311\Lib\asyncio\runners.py", line 123, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
