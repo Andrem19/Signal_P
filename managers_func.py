@@ -12,7 +12,7 @@ api_token = None
 def start_program(i: int):
     command = f"nohup python3 main_1.py {i} > output{i}.log 2>&1 &"
     # subprocess.Popen(command, shell=True)
-    subprocess.Popen(['python', 'main_1.py', str(i)], stdout=open(f'output{i}.log', 'w'), stderr=subprocess.STDOUT)
+    subprocess.Popen(['python3', 'main_1.py', str(i)], stdout=open(f'output{i}.log', 'w'), stderr=subprocess.STDOUT)
 
 def write_pids_to_file(pids, filename):
     with open(filename, 'w') as file:

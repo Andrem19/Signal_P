@@ -6,26 +6,67 @@ class Settings:
         self.time_1 = True
         self.time_5 = True
         self.time_15 = True
+        self.time_30 = True
 
         self.strategy = 'one' #one
 
         self.coin: str = 'BTCUSDT'
         self.chunk_len: int = 30
-        self.only: int = 1
+        self.only: int = 0
 
         self.filter_border_1 = 0.024
         self.filter_border_5 = 0.026
         self.filter_border_15 = 0.048
+        self.filter_border_30 = 0.024
+
+
         self.timeperiod_1 = 30
         self.timeperiod_5 = 27
         self.timeperiod_15 = 22
+        self.timeperiod_30 = 20
+
+
         self.rsi_min_border_1 = 16
         self.rsi_min_border_5 = 20
         self.rsi_min_border_15 = 20
+        self.rsi_min_border_30 = 20
+
         self.rsi_max_border = 85
+
         self.st_sl_kof_long_1 = 0.08
         self.st_sl_kof_long_5 = 0.16
         self.st_sl_kof_long_15 = 0.18
+        self.st_sl_kof_long_30 = 0.20
+
+        self.st_sl_kof_short_1 = 0.18
+        self.st_sl_kof_short_5 = 0.22
+        self.st_sl_kof_short_15 = 0.16
+        self.st_sl_kof_short_30 = 0.16
+
+        self.adx_threshold_s_1 = 49
+        self.rsi_threshold_s_1 = 88
+        self.plus_di_treshold_s_1 = 47
+
+        self.adx_threshold_s_5 = 50
+        self.rsi_threshold_s_5 = 63
+        self.plus_di_treshold_s_5 = 46
+
+        self.adx_threshold_s_15 = 45
+        self.rsi_threshold_s_15 = 80
+        self.plus_di_treshold_s_15 = 48
+
+        self.adx_threshold_s_30 = 46
+        self.rsi_threshold_s_30 = 65
+        self.plus_di_treshold_s_30 = 48
+
+        self.target_len_1 = 6
+        self.target_len_1_short = 4
+        self.target_len_5 = 16
+        self.target_len_5_short = 10
+        self.target_len_15 = 3
+        self.target_len_15_short = 4
+        self.target_len_30 = 3
+        self.target_len_30_short = 5
 
 
     def to_json(self):

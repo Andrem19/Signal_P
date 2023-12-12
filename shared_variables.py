@@ -62,6 +62,14 @@ current_minute = 0
 go_1 = True
 go_5 = False
 go_15 = False
+go_30 = False
+
+go = {
+    'go_1':True,
+    'go_5':False,
+    'go_15':False,
+    'go_30':False,
+}
 
 aditional_message = ''
 
