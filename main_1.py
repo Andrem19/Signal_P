@@ -31,44 +31,36 @@ async def handle_coin(coin: str, settings: Settings, minute: int, go: dict):
         # signal = get_fake_signal(settings.coin)
         signals_dict = {}
         signals_dict[coin] = signal
-        signals_dict['coin'] = coin
         sl = incline_res
         target_len = 3
-        if signal != 3:
-            if signal == 1:
-                target_len = settings.target_len_1 if timeframe == 1 else settings.target_len_5 if timeframe == 5 else sv.settings.target_len_15 if timeframe == 15 else sv.settings.target_len_30
-                kof = settings.st_sl_kof_long_1 if timeframe == 1 else settings.st_sl_kof_long_5 if timeframe == 5 else sv.settings.st_sl_kof_long_15 if timeframe == 15 else sv.settings.st_sl_kof_long_30
-            elif signal == 2:
-                target_len = settings.target_len_1_short if timeframe == 1 else settings.target_len_5_short if timeframe == 5 else sv.settings.target_len_15_short if timeframe == 15 else sv.settings.target_len_30_short
-                kof = settings.st_sl_kof_short_1 if timeframe == 1 else settings.st_sl_kof_short_5 if timeframe == 5 else sv.settings.st_sl_kof_short_15 if timeframe == 15 else sv.settings.st_sl_kof_short_30
-            sl = incline_res * kof
-        signals_dict['sl'] = sl
-        signals_dict['tar_len'] = target_len*timeframe
-        signals_dict['t'] = timeframe
         signals_dict[f'dataframe_{coin}'] = dataframe_hist
-        signals_dict['timestamp'] = datetime.datetime.now().timestamp()
+        if signal == 1 or signal == 2:
+            handle_numbers_list(settings.coin)
+            if sv.coins_counter[settings.coin]['number'] < 2:
+                if signal == 1:
+                    target_len = settings.target_len_1 if timeframe == 1 else settings.target_len_5 if timeframe == 5 else sv.settings.target_len_15 if timeframe == 15 else sv.settings.target_len_30
+                    kof = settings.st_sl_kof_long_1 if timeframe == 1 else settings.st_sl_kof_long_5 if timeframe == 5 else sv.settings.st_sl_kof_long_15 if timeframe == 15 else sv.settings.st_sl_kof_long_30
+                elif signal == 2:
+                    target_len = settings.target_len_1_short if timeframe == 1 else settings.target_len_5_short if timeframe == 5 else sv.settings.target_len_15_short if timeframe == 15 else sv.settings.target_len_30_short
+                    kof = settings.st_sl_kof_short_1 if timeframe == 1 else settings.st_sl_kof_short_5 if timeframe == 5 else sv.settings.st_sl_kof_short_15 if timeframe == 15 else sv.settings.st_sl_kof_short_30
+                sl = incline_res * kof
+                targ_len = (target_len-1)*timeframe
+                fb.write_new_signal(signal, settings.coin, sl, targ_len, timeframe)
+                sv.coins_counter[coin]['time'] = datetime.datetime.now().timestamp()
+                sv.coins_counter[coin]['number']+=1
 
-        if signals_dict[coin] == 1 or signals_dict[coin] == 2:
-            ent = None
-            with sv.global_lock:
-                ent = serv.get_free_ent(sv.entity_list, coin, signal)
-            if ent is not None:
-                for e in ent:
-                    signals_dict['name'] = e.name
-                    message_1 = json.dumps(signals_dict)
-
-                    fb.write_data('signal', e.name, 'signal', message_1)
-                    await tel.send_inform_message(f'I found trader {e.name} for signal {signal} {coin}', '', False)
-            else:
-                with sv.global_lock:
-                    await tel.send_inform_message(f'I cant find trader for {signal} signal {coin}', '', False)
-        signals_dict.pop('coin')
         with sv.global_lock:
             sv.global_info_dict.update(signals_dict)
     except Exception as e:
         print(f'Error: {e}')
         with sv.global_lock:
             await tel.send_inform_message(f'Error: {e}', None, False)
+
+def handle_numbers_list(coin: str):
+    timestamp = sv.coins_counter[coin]['time']
+    timestamp_expired = timestamp+1200 < datetime.datetime.now().timestamp()
+    if timestamp_expired:
+        sv.coins_counter[coin]['number'] = 0
 
 async def main(args=None):
     if args is None:

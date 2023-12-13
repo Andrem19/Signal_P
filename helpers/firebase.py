@@ -22,3 +22,12 @@ def read_data(collection, document):
         return doc.to_dict()
     else:
         return None
+def write_new_signal(signal: int, coin: str, sl: float, targ_len: int, timeframe: int, ):
+    doc_ref = db.collection('coin_rating').document('coins')
+    doc_ref.update({
+        f'{coin}.sl': sl,
+        f'{coin}.targ_len': targ_len,
+        f'{coin}.signal': signal,
+        f'{coin}.timeframe': timeframe,
+        f'{coin}.timestamp': firestore.SERVER_TIMESTAMP,
+    })
