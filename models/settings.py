@@ -26,10 +26,10 @@ class Settings:
         self.timeperiod_30 = 20
 
 
-        self.rsi_min_border_1 = 16
-        self.rsi_min_border_5 = 20
-        self.rsi_min_border_15 = 20
-        self.rsi_min_border_30 = 20
+        self.rsi_min_border_1 = 18 #16
+        self.rsi_min_border_5 = 22 #20
+        self.rsi_min_border_15 = 22 #20
+        self.rsi_min_border_30 = 22 #20
 
         self.rsi_max_border = 85
 

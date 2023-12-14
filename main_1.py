@@ -14,6 +14,7 @@ from models.settings import Settings
 from models.entity import Entity
 import shared_variables as sv
 import sys
+import random
 
 # Enable tracemalloc
 tracemalloc.start()
@@ -22,13 +23,17 @@ tracemalloc.start()
 #     asyncio.run(main(args))
 
 def get_fake_signal(coin):
-    return 1 # coin, signal, set 1 or 2
+    signal = random.randint(1, 3)
+    hist = 'fake signal'
+    timeframe = random.choice([1,5,15,30])
+    incline_res = 0.05
+    return signal, hist, timeframe, incline_res # coin, signal, set 1 or 2
 
 async def handle_coin(coin: str, settings: Settings, minute: int, go: dict):
     try:
         settings.coin = coin
         signal, dataframe_hist, timeframe, incline_res = cs.get_signal(settings, minute, go)
-        # signal = get_fake_signal(settings.coin)
+        # signal, dataframe_hist, timeframe, incline_res = get_fake_signal(settings.coin)
         signals_dict = {}
         signals_dict[coin] = signal
         sl = incline_res
