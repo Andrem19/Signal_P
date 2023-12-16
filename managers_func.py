@@ -4,6 +4,8 @@ from decouple import config
 import time
 import helpers.tlg as tel
 import os
+from datetime import datetime
+import helpers.services as serv
 
 old_timestamp = 0
 
@@ -33,6 +35,19 @@ async def kill_processes(pids):
             print(msg)
         except OSError:
             print(f"Failed to kill process with PID {pid}")
+
+async def watcgdog():
+    num_processes = 4
+    try:
+        for i in range(num_processes):
+            timestamp = serv.read_timestamp(f'watchdog/{i}.txt')
+            if timestamp +900 < datetime.now().timestamp():
+                await kill_processes(read_pids_from_file('process_pids.txt'))
+                os.remove('process_pids.txt')
+                time.sleep(3)
+                run_signals()
+    except Exception as e:
+        print(str(e))
 
 def run_signals():
     num_processes = 4

@@ -55,7 +55,6 @@ def get_signal(settings: Settings, minute: int, go:dict):
         if len(chunk_5) < settings.chunk_len*2+1:
             chunk_5 = bb.get_kline(settings.coin, settings.chunk_len*2+1, 5)
         if len(chunk_5) == settings.chunk_len*2+1:
-            step +='50 '
             chunk_5 = align_data(chunk_5, minute, 5)
             if isinstance(chunk_5, np.ndarray):
                 closes_5 = chunk_5[:-settings.chunk_len, 4]
@@ -75,7 +74,6 @@ def get_signal(settings: Settings, minute: int, go:dict):
         if len(chunk_1) < settings.chunk_len*2+1:
             chunk_1 = bb.get_kline(settings.coin, settings.chunk_len*2+1, 1)
         if len(chunk_1) == settings.chunk_len*2+1:
-            step += '10 '
             chunk_1 = align_data(chunk_1, minute, 1)
             if isinstance(chunk_1, np.ndarray):
                 closes_1 = chunk_1[:-settings.chunk_len, 4]
@@ -95,7 +93,6 @@ def get_signal(settings: Settings, minute: int, go:dict):
         if len(chunk_15) < settings.chunk_len*2+1:
             chunk_15 = bb.get_kline(settings.coin, settings.chunk_len*2+1, 15)
         if len(chunk_15) == settings.chunk_len*2+1:
-            step += '150 '
             chunk_15 = align_data(chunk_15, minute, 15)
             if isinstance(chunk_15, np.ndarray):
                 closes_15 = chunk_15[:-settings.chunk_len, 4]
@@ -115,7 +112,6 @@ def get_signal(settings: Settings, minute: int, go:dict):
         if len(chunk_30) < settings.chunk_len*2+1:
             chunk_30 = bb.get_kline(settings.coin, settings.chunk_len*2+1, 30)
         if len(chunk_30) == settings.chunk_len*2+1:
-            step += '300 '
             chunk_30 = align_data(chunk_30, minute, 30)
             print(f'type_30: {type(chunk_30)}')
             print(f'type_30_len: {len(chunk_30)}')
@@ -136,9 +132,9 @@ def get_signal(settings: Settings, minute: int, go:dict):
 
     # ===================== 5 Long ======================
     if go['go_5']:
-        step +='51 '
         data = chunk_5[:, 4]
-        signal_5 = ta.rsi(data, settings.rsi_max_border, settings.rsi_min_border_5, settings.timeperiod_5)
+        signal_5, rsi = ta.rsi(data, settings.rsi_max_border, settings.rsi_min_border_5, settings.timeperiod_5)
+        step +=f'(5:{round(rsi,0)}) '
         if signal_5 == 1:
             if add_m != '':
                 sv.aditional_message+= f'\n{settings.coin} '
@@ -147,9 +143,9 @@ def get_signal(settings: Settings, minute: int, go:dict):
             
     # ===================== 1 Long ======================
     if go['go_1']:
-        step += '11 '
         data = chunk_1[:, 4]
-        signal_1 = ta.rsi(data, settings.rsi_max_border, settings.rsi_min_border_1, settings.timeperiod_1)
+        signal_1, rsi = ta.rsi(data, settings.rsi_max_border, settings.rsi_min_border_1, settings.timeperiod_1)
+        step +=f'(1:{round(rsi,0)}) '
         if signal_1 == 1:
             if add_m != '':
                 sv.aditional_message+= f'\n{settings.coin} '
@@ -158,9 +154,9 @@ def get_signal(settings: Settings, minute: int, go:dict):
         
     # ===================== 30 Long ======================
     if go['go_30']:
-        step +='301 '
         data = chunk_30[:, 4]
-        signal_30 = ta.rsi(data, settings.rsi_max_border, settings.rsi_min_border_30, settings.timeperiod_30)
+        signal_30, rsi = ta.rsi(data, settings.rsi_max_border, settings.rsi_min_border_30, settings.timeperiod_30)
+        step +=f'(30:{round(rsi,0)}) '
         if signal_30 == 1:
             if add_m != '':
                 sv.aditional_message+= f'\n{settings.coin} '
@@ -169,9 +165,9 @@ def get_signal(settings: Settings, minute: int, go:dict):
 
     # ===================== 15 Long ======================
     if go['go_15']:
-        step += '151 '
         data = chunk_15[:, 4]
-        signal_15 = ta.rsi(data, settings.rsi_max_border, settings.rsi_min_border_15, settings.timeperiod_15)
+        signal_15, rsi = ta.rsi(data, settings.rsi_max_border, settings.rsi_min_border_15, settings.timeperiod_15)
+        step +=f'(15:{round(rsi,1)}) '
         if signal_15 == 1:
             if add_m != '':
                 sv.aditional_message+= f'\n{settings.coin} '
@@ -184,11 +180,11 @@ def get_signal(settings: Settings, minute: int, go:dict):
 
     # ===================== 15 Short =====================
     if go['go_15']:
-        step += '151-- '
         closes_15 = chunk_15[:, 4]
         highs_15 =  chunk_15[:, 2]
         lows_15 =  chunk_15[:, 3]
-        signal_15 = ta.detect_trend(highs_15, lows_15, closes_15, settings.adx_threshold_s_15, settings.rsi_threshold_s_15, settings.plus_di_treshold_s_15)
+        signal_15,adxdi = ta.detect_trend(highs_15, lows_15, closes_15, settings.adx_threshold_s_15, settings.rsi_threshold_s_15, settings.plus_di_treshold_s_15)
+        step += f'(adx-di 15:{adxdi}) '
         if signal_15 == 2:
             if add_m != '':
                 sv.aditional_message+= f'\n{settings.coin} '
@@ -201,11 +197,11 @@ def get_signal(settings: Settings, minute: int, go:dict):
 
     # ===================== 5 Short ======================
     if go['go_5']:
-        step += '51-- '
         closes_5 = chunk_5[:, 4]
         highs_5 =  chunk_5[:, 2]
         lows_5 =  chunk_5[:, 3]
-        signal_5 = ta.detect_trend(highs_5, lows_5, closes_5, settings.adx_threshold_s_5, settings.rsi_threshold_s_5, settings.plus_di_treshold_s_5)
+        signal_5, adxdi = ta.detect_trend(highs_5, lows_5, closes_5, settings.adx_threshold_s_5, settings.rsi_threshold_s_5, settings.plus_di_treshold_s_5)
+        step += f'(adx-di 5:{adxdi}) '
         if signal_5 == 2:
             if add_m != '':
                 sv.aditional_message+= f'\n{settings.coin} '

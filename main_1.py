@@ -40,19 +40,19 @@ async def handle_coin(coin: str, settings: Settings, minute: int, go: dict):
         target_len = 3
         signals_dict[f'dataframe_{coin}'] = dataframe_hist
         if signal == 1 or signal == 2:
-            handle_numbers_list(settings.coin)
-            if sv.coins_counter[settings.coin]['number'] < 2:
-                if signal == 1:
-                    target_len = settings.target_len_1 if timeframe == 1 else settings.target_len_5 if timeframe == 5 else sv.settings.target_len_15 if timeframe == 15 else sv.settings.target_len_30
-                    kof = settings.st_sl_kof_long_1 if timeframe == 1 else settings.st_sl_kof_long_5 if timeframe == 5 else sv.settings.st_sl_kof_long_15 if timeframe == 15 else sv.settings.st_sl_kof_long_30
-                elif signal == 2:
-                    target_len = settings.target_len_1_short if timeframe == 1 else settings.target_len_5_short if timeframe == 5 else sv.settings.target_len_15_short if timeframe == 15 else sv.settings.target_len_30_short
-                    kof = settings.st_sl_kof_short_1 if timeframe == 1 else settings.st_sl_kof_short_5 if timeframe == 5 else sv.settings.st_sl_kof_short_15 if timeframe == 15 else sv.settings.st_sl_kof_short_30
-                sl = incline_res * kof
-                targ_len = (target_len-1)*timeframe
-                fb.write_new_signal(signal, settings.coin, sl, targ_len, timeframe)
-                sv.coins_counter[coin]['time'] = datetime.datetime.now().timestamp()
-                sv.coins_counter[coin]['number']+=1
+            # handle_numbers_list(settings.coin)
+            # if sv.coins_counter[settings.coin]['number'] < 2:
+            if signal == 1:
+                target_len = settings.target_len_1 if timeframe == 1 else settings.target_len_5 if timeframe == 5 else sv.settings.target_len_15 if timeframe == 15 else sv.settings.target_len_30
+                kof = settings.st_sl_kof_long_1 if timeframe == 1 else settings.st_sl_kof_long_5 if timeframe == 5 else sv.settings.st_sl_kof_long_15 if timeframe == 15 else sv.settings.st_sl_kof_long_30
+            elif signal == 2:
+                target_len = settings.target_len_1_short if timeframe == 1 else settings.target_len_5_short if timeframe == 5 else sv.settings.target_len_15_short if timeframe == 15 else sv.settings.target_len_30_short
+                kof = settings.st_sl_kof_short_1 if timeframe == 1 else settings.st_sl_kof_short_5 if timeframe == 5 else sv.settings.st_sl_kof_short_15 if timeframe == 15 else sv.settings.st_sl_kof_short_30
+            sl = incline_res * kof
+            targ_len = (target_len-1)*timeframe
+            fb.write_new_signal(signal, settings.coin, sl, targ_len, timeframe)
+            # sv.coins_counter[coin]['time'] = datetime.datetime.now().timestamp()
+            # sv.coins_counter[coin]['number']+=1
 
         with sv.global_lock:
             sv.global_info_dict.update(signals_dict)
@@ -70,9 +70,9 @@ def handle_numbers_list(coin: str):
 async def main(args=None):
     if args is None:
         args = [0]
-
+    my_id = args[0]
     coins = sv.collections[int(args[0])]
-
+    serv.write_timestamp(f'watchdog/{my_id}.txt')
     msg = f'Procces number {int(args[0])+1} successfuly started'
     await tel.send_inform_message(msg, '', False)
     while True:
@@ -95,7 +95,6 @@ async def main(args=None):
 
                 settings = Settings()
                 serv.load_settings(settings)
-                serv.read_entity_status(sv.entity_list)
 
                 tasks = []
                 for coin in coins:
@@ -107,6 +106,7 @@ async def main(args=None):
                 if sv.go['go_5']:
                     message = serv.prettie_message(sv.global_info_dict, coins)
                     await tel.send_inform_message(message, '', False)
+                    serv.write_timestamp(f'watchdog/{my_id}.txt')
                 sv.go['go_5'] = False
                 sv.go['go_15'] = False
                 sv.go['go_30'] = False

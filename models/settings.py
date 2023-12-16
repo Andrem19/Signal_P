@@ -47,13 +47,13 @@ class Settings:
         self.rsi_threshold_s_1 = 88
         self.plus_di_treshold_s_1 = 47
 
-        self.adx_threshold_s_5 = 50
+        self.adx_threshold_s_5 = 46
         self.rsi_threshold_s_5 = 63
-        self.plus_di_treshold_s_5 = 46
+        self.plus_di_treshold_s_5 = 50
 
-        self.adx_threshold_s_15 = 45
+        self.adx_threshold_s_15 = 48
         self.rsi_threshold_s_15 = 80
-        self.plus_di_treshold_s_15 = 48
+        self.plus_di_treshold_s_15 = 45
 
         self.adx_threshold_s_30 = 46
         self.rsi_threshold_s_30 = 65
