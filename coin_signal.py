@@ -26,7 +26,7 @@ def align_data(data: np.ndarray, minute: int, timeframe: int):
     return -1
 
 
-def get_signal(settings: Settings, minute: int, go:dict):
+def get_signal(rsi_settings: dict, settings: Settings, minute: int, go:dict):
     add_m = ''
     step = ''
     chunk_1 = None
@@ -57,7 +57,7 @@ def get_signal(settings: Settings, minute: int, go:dict):
         if len(chunk_5) == settings.chunk_len*2+1:
             chunk_5 = align_data(chunk_5, minute, 5)
             if isinstance(chunk_5, np.ndarray):
-                closes_5 = chunk_5[:-settings.chunk_len, 4]
+                closes_5 = chunk_5[-settings.chunk_len:, 4]
                 incline_res_5 = serv.calculate_percent_difference(closes_5[0], closes_5[-1])
                 if abs(incline_res_5) < settings.filter_border_5:
                     go['go_5'] = False
@@ -76,9 +76,12 @@ def get_signal(settings: Settings, minute: int, go:dict):
         if len(chunk_1) == settings.chunk_len*2+1:
             chunk_1 = align_data(chunk_1, minute, 1)
             if isinstance(chunk_1, np.ndarray):
-                closes_1 = chunk_1[:-settings.chunk_len, 4]
-                incline_res_1 = serv.calculate_percent_difference(closes_1[0], closes_1[-1])
-                if abs(incline_res_1) < settings.filter_border_1:
+                closes_1 = chunk_1[-settings.chunk_len:, 4]
+                highs_1 = chunk_1[-settings.chunk_len:, 2]
+                lows_1 = chunk_1[-settings.chunk_len:, 3]
+                incline_res_1 = serv.calculate_percent_difference(max(highs_1), closes_1[-1])
+                incline_res_11 = serv.calculate_percent_difference(min(lows_1), closes_1[-1])
+                if abs(incline_res_1) < settings.filter_border_1 and abs(incline_res_11) < settings.filter_border_1:
                     go['go_1'] = False
             else:
                 add_m + '1 minuteerr; '
@@ -95,7 +98,7 @@ def get_signal(settings: Settings, minute: int, go:dict):
         if len(chunk_15) == settings.chunk_len*2+1:
             chunk_15 = align_data(chunk_15, minute, 15)
             if isinstance(chunk_15, np.ndarray):
-                closes_15 = chunk_15[:-settings.chunk_len, 4]
+                closes_15 = chunk_15[-settings.chunk_len:, 4]
                 incline_res_15 = serv.calculate_percent_difference(closes_15[0], closes_15[-1])
                 if abs(incline_res_15) < settings.filter_border_15:
                     go['go_15'] = False
@@ -116,7 +119,7 @@ def get_signal(settings: Settings, minute: int, go:dict):
             print(f'type_30: {type(chunk_30)}')
             print(f'type_30_len: {len(chunk_30)}')
             if isinstance(chunk_30, np.ndarray):
-                closes_30 = chunk_30[:-settings.chunk_len, 4]
+                closes_30 = chunk_30[-settings.chunk_len:, 4]
                 incline_res_30 = serv.calculate_percent_difference(closes_30[0], closes_30[-1])
                 if abs(incline_res_30) < settings.filter_border_30:
                     go['go_30'] = False
@@ -132,25 +135,45 @@ def get_signal(settings: Settings, minute: int, go:dict):
 
     # ===================== 5 Long ======================
     if go['go_5']:
+        sec_signal = False
         data = chunk_5[:, 4]
         signal_5, rsi = ta.rsi(data, settings.rsi_max_border, settings.rsi_min_border_5, settings.timeperiod_5)
         step +=f'(5:{round(rsi,0)}) '
+        if signal_5 == 3:
+            signal_5, direction = ta.rsi_direction(data)
+            sec_signal = True
+            step += direction
         if signal_5 == 1:
             if add_m != '':
                 sv.aditional_message+= f'\n{settings.coin} '
                 sv.aditional_message += add_m
-            return signal_5, step, 5, abs(incline_res_5)
+            kof = settings.st_sl_kof_long_5 if sec_signal == False else 0.18
+            params = {
+                'tm': 5,
+                'sl': abs(incline_res_5) * kof,
+                'target_len': settings.target_len_5 if sec_signal == False else 20,
+                'step': step,
+                'signal': signal_5
+            }
+            return params
             
     # ===================== 1 Long ======================
     if go['go_1']:
         data = chunk_1[:, 4]
-        signal_1, rsi = ta.rsi(data, settings.rsi_max_border, settings.rsi_min_border_1, settings.timeperiod_1)
+        signal_1, rsi = ta.rsi(data, settings.rsi_max_border, rsi_settings[1], settings.timeperiod_1)
         step +=f'(1:{round(rsi,0)}) '
         if signal_1 == 1:
             if add_m != '':
                 sv.aditional_message+= f'\n{settings.coin} '
                 sv.aditional_message += add_m
-            return signal_1, step, 1, abs(incline_res_1)
+            params = {
+                'tm': 1,
+                'sl': abs(incline_res_1) * settings.st_sl_kof_long_1,
+                'target_len': settings.target_len_1,
+                'step': step,
+                'signal': signal_1,
+            }
+            return params
         
     # ===================== 30 Long ======================
     if go['go_30']:
@@ -161,7 +184,14 @@ def get_signal(settings: Settings, minute: int, go:dict):
             if add_m != '':
                 sv.aditional_message+= f'\n{settings.coin} '
                 sv.aditional_message += add_m
-            return signal_30, step, 30, abs(incline_res_30)
+            params = {
+                'tm': 30,
+                'sl': abs(incline_res_30) * settings.st_sl_kof_long_30,
+                'target_len': settings.target_len_30,
+                'step': step,
+                'signal': signal_30,
+            }
+            return params
 
     # ===================== 15 Long ======================
     if go['go_15']:
@@ -172,7 +202,14 @@ def get_signal(settings: Settings, minute: int, go:dict):
             if add_m != '':
                 sv.aditional_message+= f'\n{settings.coin} '
                 sv.aditional_message += add_m
-            return signal_15, step, 15,abs(incline_res_15)
+            params = {
+                'tm': 15,
+                'sl': abs(incline_res_15) * settings.st_sl_kof_long_15,
+                'target_len': settings.target_len_15,
+                'step': step,
+                'signal': signal_15,
+            }
+            return params
 
     # ====================================================
     # =====================  SHORT  ======================
@@ -189,7 +226,14 @@ def get_signal(settings: Settings, minute: int, go:dict):
             if add_m != '':
                 sv.aditional_message+= f'\n{settings.coin} '
                 sv.aditional_message += add_m
-            return signal_15, step, 15, abs(incline_res_15)
+            params = {
+                'tm': 15,
+                'sl': abs(incline_res_15) * settings.st_sl_kof_short_15,
+                'target_len': settings.target_len_15_short,
+                'step': step,
+                'signal': signal_15,
+            }
+            return params
 
     # ===================== 1 Short ======================
 
@@ -206,10 +250,24 @@ def get_signal(settings: Settings, minute: int, go:dict):
             if add_m != '':
                 sv.aditional_message+= f'\n{settings.coin} '
                 sv.aditional_message += add_m
-            return signal_5, step, 5, abs(incline_res_5)
+            params = {
+                'tm': 5,
+                'sl': abs(incline_res_5) * settings.st_sl_kof_short_5,
+                'target_len': settings.target_len_5_short,
+                'step': step,
+                'signal': signal_5,
+            }
+            return params
 
 
     if add_m != '':
         sv.aditional_message+= f'\n{settings.coin} '
         sv.aditional_message += add_m
-    return 3, step, 0, 0
+    params = {
+                'tm': 0,
+                'sl': 0,
+                'target_len': 0,
+                'step': step,
+                'signal': 3,
+            }
+    return params

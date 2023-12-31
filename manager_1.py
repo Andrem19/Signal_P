@@ -14,7 +14,7 @@ async def main():
         current_time = datetime.now()
         await mf.check_and_handle_message()
         if current_time.minute in [3, 7, 13, 22, 27, 23, 37, 42, 47, 53, 57] and current_time.second in [32,33,34,35]:
-            await mf.watcgdog()
+            await mf.watchgdog()
             await mf.check_process_pids()
         time.sleep(3)
         

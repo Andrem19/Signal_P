@@ -3,6 +3,7 @@ from telegram import Bot
 from decouple import config
 import time
 import helpers.tlg as tel
+import helpers.firebase as fb
 import os
 from datetime import datetime
 import helpers.services as serv
@@ -36,12 +37,24 @@ async def kill_processes(pids):
         except OSError:
             print(f"Failed to kill process with PID {pid}")
 
-async def watcgdog():
+async def watchgdog():
     num_processes = 4
     try:
         for i in range(num_processes):
             timestamp = serv.read_timestamp(f'watchdog/{i}.txt')
             if timestamp +900 < datetime.now().timestamp():
+                await kill_processes(read_pids_from_file('process_pids.txt'))
+                os.remove('process_pids.txt')
+                time.sleep(3)
+                run_signals()
+    except Exception as e:
+        print(str(e))
+
+async def watcgdog_fb():
+    watch = fb.read_data('settings', 'watchdog')
+    try:
+        for key, val in watch.items():
+            if val +1200 < datetime.now().timestamp():
                 await kill_processes(read_pids_from_file('process_pids.txt'))
                 os.remove('process_pids.txt')
                 time.sleep(3)

@@ -14,7 +14,7 @@ class Settings:
         self.chunk_len: int = 30
         self.only: int = 0
 
-        self.filter_border_1 = 0.024
+        self.filter_border_1 = 0.026
         self.filter_border_5 = 0.026
         self.filter_border_15 = 0.048
         self.filter_border_30 = 0.024
@@ -85,12 +85,13 @@ class Settings:
             for key, value in data.items():
                 setattr(self, key, value)
 
+    def from_dict(self, set_dict: dict):
+        for key, value in set_dict.items():
+            setattr(self, key, value)
+
     @staticmethod
     def json_decode(data, obj_class):
         obj = obj_class()
         for key, value in data.items():
             setattr(obj, key, value)
         return obj
-    
-# set = Settings()
-# set.to_json()

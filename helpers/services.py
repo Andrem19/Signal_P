@@ -4,6 +4,7 @@ from models.entity import Entity
 import helpers.firebase as fb
 from datetime import datetime
 import os
+import numpy as np
 from models.settings import Settings
 
 def calculate_percent_difference(close, high_or_low):
@@ -54,3 +55,8 @@ def read_timestamp(filename):
     else:
         print('file do not exist')
 
+def chose_arr(start_ind: int, arr: np.ndarray, step: int):
+    new_arr = []
+    for i in range(start_ind, len(arr), step):
+        new_arr.append(arr[i])
+    return np.array(new_arr)
