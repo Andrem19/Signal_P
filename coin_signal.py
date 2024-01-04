@@ -37,6 +37,7 @@ def get_signal(rsi_settings: dict, settings: Settings, minute: int, go:dict):
     closes_1 = None
     highs_1 = None
     lows_1 = None
+    opens_1 = None
     incline_res_5 = None
     closes_5 = None
     highs_5 = None
@@ -79,6 +80,7 @@ def get_signal(rsi_settings: dict, settings: Settings, minute: int, go:dict):
                 closes_1 = chunk_1[-settings.chunk_len:, 4]
                 highs_1 = chunk_1[-settings.chunk_len:, 2]
                 lows_1 = chunk_1[-settings.chunk_len:, 3]
+                opens_1 = chunk_1[-settings.chunk_len:, 1]
                 incline_res_1 = serv.calculate_percent_difference(max(highs_1), closes_1[-1])
                 incline_res_11 = serv.calculate_percent_difference(min(lows_1), closes_1[-1])
                 if abs(incline_res_1) < settings.filter_border_1 and abs(incline_res_11) < settings.filter_border_1:
@@ -137,7 +139,7 @@ def get_signal(rsi_settings: dict, settings: Settings, minute: int, go:dict):
     if go['go_5']:
         sec_signal = False
         data = chunk_5[:, 4]
-        signal_5, rsi = ta.rsi(data, settings.rsi_max_border, settings.rsi_min_border_5, settings.timeperiod_5)
+        signal_5, rsi = ta.rsi(data, settings.rsi_max_border, settings.rsi_min_border_5, settings.timeperiod_5, 5)
         step +=f'(5:{round(rsi,0)}) '
         if signal_5 == 3:
             signal_5, direction = ta.rsi_direction(data)
@@ -160,7 +162,15 @@ def get_signal(rsi_settings: dict, settings: Settings, minute: int, go:dict):
     # ===================== 1 Long ======================
     if go['go_1']:
         data = chunk_1[:, 4]
-        signal_1, rsi = ta.rsi(data, settings.rsi_max_border, rsi_settings[1], settings.timeperiod_1)
+        signal_1, rsi = 3, 0
+        min_br = min([opens_1[-1], data[-1]])
+        body = abs(opens_1[-1] - data[-1])
+        low_tail = min_br - lows_1[-1]
+        if low_tail > body*0.4:
+            signal_1, rsi = ta.rsi(data, settings.rsi_max_border, rsi_settings[1], settings.timeperiod_1, 1)
+            if signal_1 == 3:
+                if rsi < rsi_settings[1]:
+                    signal_1= 1
         step +=f'(1:{round(rsi,0)}) '
         if signal_1 == 1:
             if add_m != '':
@@ -178,7 +188,7 @@ def get_signal(rsi_settings: dict, settings: Settings, minute: int, go:dict):
     # ===================== 30 Long ======================
     if go['go_30']:
         data = chunk_30[:, 4]
-        signal_30, rsi = ta.rsi(data, settings.rsi_max_border, settings.rsi_min_border_30, settings.timeperiod_30)
+        signal_30, rsi = ta.rsi(data, settings.rsi_max_border, settings.rsi_min_border_30, settings.timeperiod_30, 30)
         step +=f'(30:{round(rsi,0)}) '
         if signal_30 == 1:
             if add_m != '':
@@ -196,7 +206,7 @@ def get_signal(rsi_settings: dict, settings: Settings, minute: int, go:dict):
     # ===================== 15 Long ======================
     if go['go_15']:
         data = chunk_15[:, 4]
-        signal_15, rsi = ta.rsi(data, settings.rsi_max_border, settings.rsi_min_border_15, settings.timeperiod_15)
+        signal_15, rsi = ta.rsi(data, settings.rsi_max_border, settings.rsi_min_border_15, settings.timeperiod_15, 15)
         step +=f'(15:{round(rsi,1)}) '
         if signal_15 == 1:
             if add_m != '':

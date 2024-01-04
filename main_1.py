@@ -39,6 +39,10 @@ async def handle_coin(rsi_settings: dict, coin: str, settings: Settings, minute:
         sl = params['sl']
         target_len = (params['target_len']-1)*params['tm']
         signal = params['signal']
+        if signal != 3:
+            with sv.global_lock:
+                sv.is_signal = True
+
         signals_dict[f'dataframe_{coin}'] = params['step']
         if signal == 1 or signal == 2:
             fb.write_new_signal(signal, settings.coin, sl, target_len, params['tm'])
@@ -48,12 +52,6 @@ async def handle_coin(rsi_settings: dict, coin: str, settings: Settings, minute:
         print(f'Error: {e}')
         with sv.global_lock:
             await tel.send_inform_message(f'Error: {e}', None, False)
-
-def handle_numbers_list(coin: str):
-    timestamp = sv.coins_counter[coin]['time']
-    timestamp_expired = timestamp+1200 < datetime.datetime.now().timestamp()
-    if timestamp_expired:
-        sv.coins_counter[coin]['number'] = 0
 
 async def main(args=None):
     if args is None:
@@ -72,7 +70,7 @@ async def main(args=None):
             time.sleep(3)
             current_time = datetime.datetime.now()
 
-            if current_time.second in [56, 55, 56, 57]:
+            if current_time.second in [53, 54, 55, 56]:
                 if current_time.minute in [58, 28]:
                     sv.go['go_30'] = True
                 if current_time.minute in [59, 4, 9, 14, 19, 24, 29, 34, 39, 44, 49, 54]:
@@ -96,6 +94,9 @@ async def main(args=None):
                     tasks.append(task)
 
                 await asyncio.gather(*tasks)
+                if sv.is_signal:
+                    sv.is_signal = False
+                    fb.chande_signal_trigger()
 
                 if sv.go['go_5']:
                     message = serv.prettie_message(sv.global_info_dict, coins)

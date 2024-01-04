@@ -1,0 +1,5 @@
+firebase_admin==6.2.0
+numpy==1.26.3
+python-decouple==3.8
+python-telegram-bot==20.7
+Requests==2.31.0

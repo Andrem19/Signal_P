@@ -2,14 +2,15 @@ import talib
 import numpy as np
 import helpers.services as serv
 
-def rsi(closes, rsi_max_border, rsi_min_border, timeperiod): 
+def rsi(closes, rsi_max_border, rsi_min_border, timeperiod, tm_frame): 
     rsi = talib.RSI(closes, timeperiod=timeperiod)
+    rsi_to_return = rsi[-2] if tm_frame == 1 else rsi[-1]
     if rsi[-1] < rsi_min_border:
-        return 1, rsi[-1]
+        return 1, rsi_to_return
     elif rsi[-1] > rsi_max_border:
-        return 2, rsi[-1]
+        return 2, rsi_to_return
     else:
-        return 3, rsi[-1]
+        return 3, rsi_to_return
     
 def detect_trend(highs, lows, closes, adx_trh, rsi_trh, di_trh):
     adx = talib.ADX(highs, lows, closes, timeperiod=24)
@@ -51,7 +52,7 @@ def comb(one, two, three):
 def rsi_direction(closes: np.ndarray):
     incline_res = serv.calculate_percent_difference(closes[-30], closes[-1])
     if abs(incline_res) < 0.040:
-        return 3
+        return 3, 'dir '
     rsi = talib.RSI(closes, timeperiod=27)
 
     row_1 = serv.chose_arr(0, closes[:-10], 10)
@@ -68,8 +69,8 @@ def rsi_direction(closes: np.ndarray):
     last = 1 if all(last_rsi > 0) else 2 if all(last_rsi < 0) else 0
 
     if zero == 0 and one == 0 and last == 2 and rsi[-1] > 28 and rsi[-1] < 50 and trend:
-        return 1, f'{zero}-{one}-{last}'
+        return 1, f'{zero}-{one}-{last} '
     elif comb(zero, one, last) and rsi[-1] > 28 and rsi[-1] < 40:
-        return 1, f'{zero}-{one}-{last}'
+        return 1, f'{zero}-{one}-{last} '
     else:
-        return 3, f'{zero}-{one}-{last}'
+        return 3, f'{zero}-{one}-{last} '

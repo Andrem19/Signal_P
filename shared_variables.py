@@ -281,3 +281,5 @@ go = {
 aditional_message = ''
 
 global_settings: Settings = Settings()
+
+is_signal = False

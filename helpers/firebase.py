@@ -32,6 +32,13 @@ def write_new_signal(signal: int, coin: str, sl: float, targ_len: int, timeframe
         f'{coin}.timeframe': timeframe,
         f'{coin}.timestamp': firestore.SERVER_TIMESTAMP,
     })
+    
+def chande_signal_trigger():
+    doc_ref = db.collection('coin_rating').document('new_signal_trigger')
+    doc_ref.update({
+        'new_signal': firestore.SERVER_TIMESTAMP
+    })
+
 
 def write_settings(settings: Settings):
     doc_ref = db.collection('settings').document('signal')
